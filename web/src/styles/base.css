@@ -1,0 +1,30 @@
+/* ============================================================
+   base.css — 重置 + 全局基线（标签级样式，不涉及任何业务类）
+   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+
+html{height:100%}
+
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--txt);
+  font-size:14px;
+  line-height:1.5;
+  height:100vh;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+a{color:var(--accent)}
+
+::selection{background:var(--accent-soft);color:var(--accent-deep)}
+mark{background:var(--mark-bg);border-radius:2px;padding:0 1px;color:inherit}
+
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{
+  background:var(--line-strong);border-radius:5px;border:3px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover{background:var(--sub)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}

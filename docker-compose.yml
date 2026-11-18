@@ -1,0 +1,90 @@
+# 两种运行方式（同一文件，用 profile 区分）
+#   生产：docker compose up -d --build            → 打开 http://localhost:5218
+#   开发：docker compose --profile dev up --build → 打开 http://localhost:5229
+# 生产入口只有 web(nginx) 的 5218，server 不对外暴露端口；开发用 5228/5229，避免与生产端口冲突。
+# 生产与开发共用宿主 ./data，两者不要同时启动：JSON 文件单写者假设会被破坏。
+
+services:
+  # ---------- 生产 ----------
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: project-hub-server:latest
+    container_name: project-hub-server
+    environment:
+      HUB_PORT: '5218'
+      NODE_ENV: production
+      # 请求经 web(nginx) 反代进来，客户端 IP 取自 X-Real-IP，否则锁定/日志里的 IP 全是 nginx 的
+      HUB_TRUST_PROXY: 'true'
+    volumes:
+      # 数据持久化：config.ts 推导出的数据目录是 <项目根>/data，即容器内 /app/data
+      - ./data:/app/data
+    restart: unless-stopped
+    networks: [hub]
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    image: project-hub-web:latest
+    container_name: project-hub-web
+    ports:
+      - '5218:80'
+    depends_on:
+      server:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [hub]
+
+  # ---------- 开发 ----------
+  server-dev:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    image: project-hub-server:dev
+    container_name: project-hub-server-dev
+    profiles: [dev]
+    environment:
+      HUB_PORT: '5218'
+      NODE_ENV: development
+      # web-dev 的 Vite 代理会带 X-Forwarded-For（xfwd），同样需要信任才能区分客户端 IP
+      HUB_TRUST_PROXY: 'true'
+      # 宿主目录挂载收不到 inotify 事件，tsx(tsx watch 内置 chokidar) 改轮询才能重启
+      CHOKIDAR_USEPOLLING: 'true'
+    volumes:
+      # 只挂源码与配置；node_modules 留在镜像里，避免宿主/容器架构不一致
+      - ./server/src:/app/server/src
+      - ./server/tsconfig.json:/app/server/tsconfig.json
+      - ./data:/app/data
+    ports:
+      - '5228:5218'
+    restart: unless-stopped
+    networks: [hub]
+
+  web-dev:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.dev
+    image: project-hub-web:dev
+    container_name: project-hub-web-dev
+    profiles: [dev]
+    environment:
+      # 容器内的 /api 代理要指向 server-dev 服务名，不能用 localhost
+      VITE_API_TARGET: http://server-dev:5218
+      # 宿主目录挂载收不到 inotify 事件（Windows/macOS Docker Desktop），改轮询触发热更新
+      VITE_USE_POLLING: 'true'
+    volumes:
+      - ./web/src:/app/src
+      - ./web/index.html:/app/index.html
+      - ./web/vite.config.ts:/app/vite.config.ts
+    ports:
+      - '5229:5219'
+    depends_on:
+      - server-dev
+    restart: unless-stopped
+    networks: [hub]
+
+networks:
+  hub:
+    driver: bridge

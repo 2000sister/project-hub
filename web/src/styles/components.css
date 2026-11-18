@@ -1,0 +1,61 @@
+/* ============================================================
+   components.css — 跨页面复用的通用类
+   只放「两个以上 SFC 用到」的东西；单页专属样式写在各自 <style scoped>
+   ============================================================ */
+
+/* ---------- 布局外壳（ProjectsView / EntriesView 共用） ---------- */
+.main{display:flex;flex:1;overflow:hidden}
+/* 内容区默认撑满剩余宽度；需要居中的页面在自己的 SFC 里加 max-width + margin auto */
+.detail{flex:1;overflow-y:auto;padding:28px 32px 48px}
+
+/* 内容列：容器撑满可用宽度，内部每块信息限宽居中，保持可读行宽 */
+.content-col > *{
+  width:100%;
+  max-width:var(--content-w);
+  margin-left:auto;
+  margin-right:auto;
+}
+
+/* ---------- 按钮 ---------- */
+.btn{
+  border:1px solid var(--line-strong);
+  background:var(--card);
+  color:var(--txt);
+  padding:6px 14px;
+  border-radius:var(--radius);
+  cursor:pointer;
+  font-size:13px;
+  font-family:inherit;
+  white-space:nowrap;
+  transition:border-color .18s var(--ease),color .18s var(--ease),
+             background .18s var(--ease),transform .12s var(--ease);
+}
+.btn:hover{border-color:var(--accent);color:var(--accent-deep)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.btn.primary:hover{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff}
+.btn.danger{color:var(--danger)}
+.btn.danger:hover{border-color:var(--danger);background:var(--danger-soft);color:var(--danger)}
+.btn.sm{padding:4px 10px;font-size:12px;border-radius:5px}
+
+/* ---------- 标签（项目卡 / 条目卡共用） ---------- */
+.tagrow{display:flex;flex-wrap:wrap;gap:4px}
+.tag{
+  font-size:11px;
+  padding:2px 8px;
+  border-radius:99px;
+  background:var(--bg);
+  color:var(--sub);
+  border:1px solid var(--line);
+  white-space:nowrap;
+}
+
+/* ---------- 空态 ---------- */
+.empty{padding:48px 24px;text-align:center;color:var(--sub);line-height:2}
+
+/* ---------- 响应式外壳 ---------- */
+@media (max-width:900px){
+  .main{flex-direction:column}
+  .detail{padding:20px 16px 40px}
+  .content-col > *{max-width:none}   /* 窄屏铺满，避免二次压缩 */
+}

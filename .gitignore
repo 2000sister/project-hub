@@ -1,0 +1,45 @@
+.DS_Store
+node_modules
+/dist
+/assets
+video
+*.rar
+
+# local env files
+.env.local
+.env.*.local
+
+# 运行时数据：含明文凭据，只留在本地，禁止提交
+/data/
+
+# 构建产物（可由 npm run build 重建；不锚定根目录，web/dist 也要排除）
+dist/
+*.tsbuildinfo
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+
+
+/md
+.claude
+.apifox
+.scratch
+docs/
+ai-context/
+AGENTS.md
+CODING_STANDARDS.md
+GLOSSARY.md
