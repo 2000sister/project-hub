@@ -3,6 +3,10 @@
     <section class="detail content-col entries-page">
       <!-- 筛选栏：项目标签（多选任一命中）+ 条目类型（PRD FR-09） -->
       <div class="filterbar">
+        <div class="fb-head">
+          <span class="fb-title">筛选</span>
+          <span class="fb-note">共 {{ rows.length }} 个连接条目{{ terms.length ? '（含搜索过滤）' : '' }}</span>
+        </div>
         <div class="chiprow">
           <span class="lbl">项目标签</span>
           <template v-if="allTags.length">
@@ -16,20 +20,20 @@
           <span v-else class="muted-note">
             {{ canEdit ? '暂无标签，在编辑项目时可添加' : '暂无标签' }}
           </span>
-          <span v-if="selTags.size" class="chip" @click="selTags.clear()">✕ 清除</span>
+          <span v-if="selTags.size" class="chip" @click="selTags.clear()">清除</span>
         </div>
         <div class="chiprow">
           <span class="lbl">条目类型</span>
           <span
             v-for="t in allTypes"
             :key="t.name"
-            :class="['chip', selTypes.has(t.name) ? 'on' : '']"
+            :class="['chip', selTypes.has(t.name) ? 'on' : '', !t.count ? 'zero' : '']"
             @click="toggle(selTypes, t.name)"
-          >{{ TYPES[t.name].icon }} {{ TYPES[t.name].label }}<span class="n">{{ t.count }}</span></span>
-          <span v-if="selTypes.size" class="chip" @click="selTypes.clear()">✕ 清除</span>
-        </div>
-        <div class="muted-note">
-          共 {{ rows.length }} 个连接条目{{ terms.length ? '（含搜索过滤）' : '' }} · 标签多选 = 任一命中
+          >
+            <Icon :name="iconName(TYPES[t.name].icon)" :size="12" />
+            {{ TYPES[t.name].label }}<span class="n">{{ t.count }}</span>
+          </span>
+          <span v-if="selTypes.size" class="chip" @click="selTypes.clear()">清除</span>
         </div>
       </div>
 
@@ -43,6 +47,8 @@
 import { computed, reactive } from 'vue'
 import EntryCard from '@/components/EntryCard.vue'
 import { TYPES } from '@/api/types'
+import Icon from '@/components/Icon.vue'
+import { iconName } from '@/components/icons'
 import type { Project } from '@/api/types'
 import { dataStore } from '@/stores/data'
 import { canEdit } from '@/stores/session'
@@ -99,29 +105,44 @@ const rows = computed<Row[]>(() => {
 
 <style scoped>
 /* 全部条目页：内容区撑满，信息块由 .content-col 限宽居中；这里只补顶部留白 */
-.entries-page{padding-top:32px}
+.entries-page{padding-top:30px}
 
-/* ============ 筛选栏 ============ */
+/* ============ 筛选栏 ============
+   页面级控件不画卡片：详情页面上只应有一种卡片（条目卡），
+   筛选直接落在纸面上，用一条横线收尾，比一张大卡轻得多 */
 .filterbar{
-  background:var(--card);border:1px solid var(--line-strong);
-  border-radius:var(--radius);padding:16px 18px;margin-bottom:18px;
+  padding:0 0 12px;margin-bottom:14px;
+  border-bottom:1px solid var(--line-strong);
 }
+.fb-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  margin-bottom:9px;
+}
+.fb-title{font-size:11.5px;font-weight:600;color:var(--sub);letter-spacing:.06em}
+.fb-note{font-size:11.5px;color:var(--sub);font-variant-numeric:tabular-nums}
 
-.chiprow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
 .chiprow:last-child{margin-bottom:0}
 .chiprow .lbl{
-  font-size:12px;color:var(--sub);width:64px;flex-shrink:0;letter-spacing:.04em;
+  font-size:11.5px;color:var(--sub);width:62px;flex-shrink:0;letter-spacing:.04em;
 }
 
 .chip{
-  border:1px solid var(--line-strong);background:var(--card);border-radius:99px;
-  padding:4px 13px;font-size:12px;cursor:pointer;color:var(--sub);font-family:inherit;
-  user-select:none;
-  transition:all .18s var(--ease);
+  display:inline-flex;align-items:center;gap:4px;
+  border:1px solid var(--line-strong);background:var(--card);border-radius:3px;
+  padding:3px 10px;font-size:12px;cursor:pointer;color:var(--sub);font-family:inherit;
+  user-select:none;line-height:1.7;
+  transition:border-color var(--dur-1) var(--ease),color var(--dur-1) var(--ease),
+             background var(--dur-1) var(--ease),box-shadow var(--dur-1) var(--ease);
 }
-.chip:hover{border-color:var(--accent);color:var(--accent-deep);background:var(--accent-soft)}
-.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.chip:hover{border-color:var(--accent-line);color:var(--accent-deep);background:var(--accent-soft)}
+.chip.zero{opacity:.45}          /* 没有条目的类型不必抢同一档视觉重量 */
+.chip.zero:hover{opacity:.7;background:var(--card);border-color:var(--line-strong);color:var(--sub)}
+.chip.on{
+  background:var(--accent-soft);border-color:var(--accent);color:var(--accent-deep);
+  font-weight:600;box-shadow:inset 0 0 0 1px var(--accent);
+}
 .chip .n{opacity:.7;font-size:11px;margin-left:3px;font-variant-numeric:tabular-nums}
 
-.muted-note{font-size:12px;color:var(--sub)}
+.muted-note{font-size:11.5px;color:var(--sub);opacity:.75}
 </style>

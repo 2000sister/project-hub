@@ -5,37 +5,61 @@
 :root{
   color-scheme: light;
 
-  /* 纸与墨 */
-  --bg:          oklch(96.8% 0.008 85);   /* 暖纸 */
-  --card:        oklch(99.3% 0.004 85);   /* 近白暖 */
-  --card-2:      oklch(98%   0.006 85);   /* 条目头浅纸 */
-  --line:        oklch(89%   0.012 80);   /* 细线 */
-  --line-strong: oklch(80%   0.018 80);
-  --txt:         oklch(26%   0.02 65);    /* 墨 */
-  --sub:         oklch(52%   0.02 70);    /* 淡墨 */
+  /* ---------- 纸与墨：四级纸面，明度依次抬升 ----------
+     柜体(bg) → 索引抽屉(rail) → 详情纸(paper) → 卡片(card)
+     每级 ≥1.8% 明度差，层次靠底色而非阴影；柜体比详情深 3.8%，一眼能分出两栏 */
+  --bg:          oklch(94.8% 0.007 80);   /* 柜体：应用底 */
+  --rail:        oklch(96.6% 0.007 80);   /* 索引抽屉：左栏 */
+  --paper:       oklch(98.6% 0.004 85);   /* 详情纸：右栏 */
+  --card:        oklch(99.4% 0.003 85);   /* 卡片：最亮面 */
+  --card-2:      oklch(97.4% 0.006 85);   /* 卡片内回落区（账号栅栏底） */
+  --line:        oklch(90%   0.010 80);   /* 发丝线：卡片内分隔 */
+  --line-strong: oklch(84%   0.014 80);   /* 结构线：卡片边框 */
+  --txt:         oklch(24%   0.018 65);   /* 墨 */
+  --txt-soft:    oklch(36%   0.018 68);
+  --sub:         oklch(50%   0.018 70);   /* 淡墨 */
 
-  /* 强调：深青（印章色） */
-  --accent:      oklch(50% 0.09 180);
-  --accent-deep: oklch(40% 0.08 180);
-  --accent-soft: oklch(94% 0.02 180);
-  --accent-line: oklch(82% 0.05 180);
+  /* ---------- 强调：深青（印章色） ----------
+     压深到 48% 才够重量；accent-soft 只用于印章底与输入聚焦晕，不做大面积铺色 */
+  --accent:      oklch(48% 0.095 178);
+  --accent-deep: oklch(37% 0.085 178);
+  --accent-soft: oklch(95% 0.015 178);
+  --accent-line: oklch(84% 0.04 178);
+  --accent-glow: oklch(48% 0.095 178 / .16);
 
-  /* 状态 */
+  /* ---------- 状态 ---------- */
   --danger:      oklch(52% 0.17 28);
   --danger-soft: oklch(95% 0.03 28);
   --ok:          oklch(52% 0.11 155);
   --ok-soft:     oklch(95% 0.03 155);
 
-  /* 高亮 */
-  --mark-bg:     oklch(92% 0.07 95);
+  /* ---------- 高亮 ---------- */
+  --mark-bg:     oklch(94.5% 0.055 92);
 
-  /* 字体 */
+  /* ---------- 字体 ---------- */
   --serif: Georgia,"Times New Roman","Songti SC",STSong,SimSun,serif;
   --sans:  -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --mono:  ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;
 
-  /* 几何与动效 */
-  --radius: 6px;
-  --content-w: 920px;   /* 信息块阅读列宽 */
-  --ease: cubic-bezier(.22,1,.36,1);
+  /* ---------- 几何 ---------- */
+  --radius:    5px;    /* 控件圆角 */
+  --radius-lg: 8px;    /* 卡片圆角：小一点才有纸卡的硬边感 */
+  --content-w: 900px;  /* 信息块阅读列宽 */
+
+  /* ---------- 阴影：三层递进，颜色带纸的暖调而非纯黑 ----------
+     1 = 常驻浮起，2 = 悬停抬升，3 = 弹层 / 模态             */
+  --shadow-1: 0 1px 1px oklch(28% 0.02 70 / .035);
+  --shadow-2: 0 1px 2px oklch(28% 0.02 70 / .06),
+              0 4px 10px oklch(28% 0.02 70 / .05);
+  --shadow-3: 0 6px 14px oklch(28% 0.02 70 / .09),
+              0 20px 48px oklch(28% 0.02 70 / .14);
+
+  /* ---------- 动效：三档时长 + 三条缓动 ----------
+     快 = 颜色 / 透明度切换，中 = 位移 / 尺寸，慢 = 进出场        */
+  --dur-1: 140ms;
+  --dur-2: 240ms;
+  --dur-3: 420ms;
+  --ease:    cubic-bezier(.22,1,.36,1);          /* 出场：快进慢收 */
+  --ease-in: cubic-bezier(.4,0,1,1);             /* 退场 */
+  --spring:  cubic-bezier(.34,1.56,.64,1);       /* 轻微回弹 */
 }

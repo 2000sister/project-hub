@@ -4,6 +4,7 @@ import { fail, ok } from '../http/respond.js'
 import { mutate, readDb, stamp } from '../models/db.js'
 import { appendLog } from '../models/log.js'
 import { isProjectList } from '../models/project.js'
+import { migrateProjects } from '../models/migrate.js'
 
 export function getData(ctx: AppContext): void {
   const db = readDb()
@@ -24,7 +25,7 @@ export function postSave(ctx: AppContext): void {
     return
   }
   const version = mutate((draft) => {
-    draft.projects = projects
+    draft.projects = migrateProjects(projects)
     stamp(draft)
     appendLog(draft, 'edit', '保存数据', `version=${draft.version}`)
     return draft.version
@@ -40,7 +41,7 @@ export function postImport(ctx: AppContext): void {
     return
   }
   const version = mutate((draft) => {
-    draft.projects = input
+    draft.projects = migrateProjects(input)
     stamp(draft)
     appendLog(draft, 'edit', '导入数据', `projects=${input.length}`)
     return draft.version

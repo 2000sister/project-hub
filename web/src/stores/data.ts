@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 import { api, ApiError } from '@/api/client'
 import type { Project } from '@/api/types'
+import { migrateProject } from '@/api/migrate'
 import { sessionStore } from './session'
 import { toast } from './toast'
 
@@ -35,7 +36,8 @@ export function findEntry(eid: string): { project: Project; entryIndex: number }
 
 async function load(): Promise<void> {
   const d = await api.data()
-  dataStore.projects = d.projects || []
+  // 服务端可能仍是旧结构（账号密码混在 fields 里），加载时统一迁移成 creds
+  dataStore.projects = (d.projects || []).map(migrateProject)
   dataStore.version = d.version
   dataStore.loaded = true
   checkMigration()

@@ -2,6 +2,7 @@
 import fs from 'node:fs'
 import { config } from '../config.js'
 import type { Db } from '../types.js'
+import { migrateProjects } from './migrate.js'
 
 let db: Db | null = null
 
@@ -17,9 +18,23 @@ function parseFile(file: string): Db | null {
   }
 }
 
+/**
+ * 旧结构迁移：账号密码曾混在 entry.fields 里。
+ * 新结构每个条目必有 creds 数组（可为空），据此判定，避免每次启动重复写盘。
+ */
+function needsMigration(d: Db): boolean {
+  return d.projects.some((p) => (p.entries ?? []).some((e) => !Array.isArray(e.creds)))
+}
+
 export function loadDb(): Db {
   db = parseFile(config.dataFile)
   if (db) {
+    if (needsMigration(db)) {
+      db.projects = migrateProjects(db.projects)
+      stamp(db)
+      persist(db)
+      console.log('[data] 已将存量数据迁移为「资源 + 账号块」结构并写回')
+    }
     console.log('[data] 已加载数据文件，项目数:', db.projects.length)
     return db
   }

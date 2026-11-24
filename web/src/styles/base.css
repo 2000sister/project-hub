@@ -10,21 +10,57 @@ body{
   background:var(--bg);
   color:var(--txt);
   font-size:14px;
-  line-height:1.5;
+  line-height:1.55;
   height:100vh;
   overflow:hidden;
   -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
 }
 
-a{color:var(--accent)}
+a{color:var(--accent-deep)}
 
 ::selection{background:var(--accent-soft);color:var(--accent-deep)}
-mark{background:var(--mark-bg);border-radius:2px;padding:0 1px;color:inherit}
+mark{background:var(--mark-bg);border-radius:1px;padding:0 1px;color:inherit}
 
+/* ---------- 滚动条：细、无箭头、悬停才加深 ---------- */
 ::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{
-  background:var(--line-strong);border-radius:5px;border:3px solid var(--bg);
+  background:oklch(84% 0.012 80 / .8);border-radius:99px;
+  border:3px solid transparent;background-clip:content-box;
+  transition:background-color var(--dur-2) var(--ease);
 }
-::-webkit-scrollbar-thumb:hover{background:var(--sub)}
+::-webkit-scrollbar-thumb:hover{background:oklch(66% 0.02 70 / .9);background-clip:content-box}
 
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+/* ---------- 焦点环：统一为柔和的强调色外发光，不用系统蓝框 ---------- */
+:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  border-radius:3px;
+}
+
+/* ---------- 进场动画 ----------
+   全站只有两处用到：one 是切换项目时抬头区入场，one 是弹层进场。
+   列表与卡片不做逐块入场——满屏都在动，等于没有重点，且长列表白搭一帧。 */
+@keyframes rise{
+  from{opacity:0;transform:translateY(6px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to  {opacity:1}
+}
+@keyframes popIn{
+  from{opacity:0;transform:translateY(8px) scale(.99)}
+  to  {opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* 尊重系统「减少动态效果」：全部动画降到瞬时 */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
